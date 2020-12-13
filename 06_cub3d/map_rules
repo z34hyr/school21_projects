@@ -1,0 +1,25 @@
+# map rules
+# there can be more than one space between type's parameters
+# there can be \n between types (but it is not obliged)
+# type values must follow in one line
+# map is always going after all types
+
+
+R 1920 1080
+
+
+NO ./path_to_NO_texture
+SO  ./path_to_SO_texture
+
+EA    ./path_to_EA_texture  WE ./path_to_WE_texture
+
+F   0,  255, 255
+
+C 255, 201, 20
+
+S ./path_to_sprite_texture
+
+11111
+10001
+10001
+11111

@@ -1,0 +1,11 @@
+-Isrcs/mlx -Lsrcs/mlx -lmlx -framework OpenGL -framework AppKit \ 
+
+https://harm-smits.github.io/42docs/libs/minilibx/getting_started.html#test-your-skills
+
+gcc -o testo *.o -L.. -lmlx -L/usr/lib -lXext -lX11 -lm -lbsd
+
+X Error of failed request:  BadDrawable (invalid Pixmap or Window parameter)
+  Major opcode of failed request:  62 (X_CopyArea)
+  Resource id in failed request:  0x0
+  Serial number of failed request:  42
+  Current serial number in output stream:  43

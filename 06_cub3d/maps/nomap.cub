@@ -1,0 +1,10 @@
+ R   1024 768 
+
+ F 111, 1,  44   
+    C 2, 3, 4 
+
+    S qq.z
+ WE west.bmp
+ SO south.bmp
+ EA east.bmp
+ NO   /home/zephyr/school21/06_cub3d/pics/eagle.xpm

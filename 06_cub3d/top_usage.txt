@@ -1,0 +1,3 @@
+./cub3d ./maps/example.cub
+pgrep cub3d (to get process PID)
+top -p PID
