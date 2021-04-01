@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ftps
+spec:
+  selector:
+    matchLabels:
+      app: ftps
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ftps
+    spec:
+      containers:
+      - name: ftps
+        image: ftps_im:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 21
+        - containerPort: 20
+        - containerPort: 30020
+        - containerPort: 30021
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ftps-svc
+  annotations:
+    metallb.universe.tf/address-pool: default
+spec:
+  type: LoadBalancer
+  selector:
+    app: ftps
+  ports:
+  - port: 21
+    name: transfer
+    protocol: TCP
+    targetPort: 21
+  - port: 20
+    name: conn
+    protocol: TCP
+    targetPort: 20
+  - port: 30020
+    name: passive1
+    protocol: TCP
+    targetPort: 30020
+  - port: 30021
+    name: passive2
+    protocol: TCP
+    targetPort: 30021
