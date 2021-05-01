@@ -50,7 +50,6 @@ namespace ft
 			{
 				if (real_size)
 				{
-					std::cout << real_size << std::endl;
 					for (size_type i = 0; i < real_size; i++)
 						allo.destroy(&vect[i]);
 					allo.deallocate(vect, buffer_size);
@@ -340,10 +339,10 @@ namespace ft
 					throw std::out_of_range(err);
 				}
 			};
-			reference		front() { return vect[0]; };
-			const_reference	front() const { return vect[0]; };
-			reference		back() { return vect[real_size - 1]; };
-			const_reference	back() const { return vect[real_size - 1]; };
+			reference		front() { return *(begin()); };
+			const_reference	front() const { return *(begin()); };
+			reference		back() { return *(end() - 1); };
+			const_reference	back() const { return *(end() - 1); };
 
 			///////////////////////////////////////////////////////////////////////
 			///				MODIFIERS										///////
@@ -705,15 +704,26 @@ namespace ft
 			}
 			void	assign_int(size_type n, const value_type& val)
 			{
-				if (buffer_size)
+				bool need_alloc = false;
+				if (real_size)
 				{
 					while (real_size)
 						allo.destroy(&vect[real_size-- - 1]);
-					allo.deallocate(vect, buffer_size);
 				}
-				if ((vect = allo.allocate(n)))
+				if (buffer_size && buffer_size < n)
 				{
+					allo.deallocate(vect, buffer_size);
+					need_alloc = true;
+				}
+				// while (buffer_size < n)
+				// 	buffer_size = buffer_size ? buffer_size << 1 : 1;
+				if (need_alloc)
+				{
+					vect = allo.allocate(n);
 					buffer_size = n;
+				}
+				if (vect)
+				{
 					real_size = n;
 					for (size_type i = 0; i < n; i++)
 						allo.construct(&vect[i], val);
@@ -721,24 +731,31 @@ namespace ft
 			}
 			void	assign_iter(size_type n, iterator first)
 			{
-				if (buffer_size)
+				bool need_alloc = false;
+				if (real_size)
 				{
 					while (real_size)
 						allo.destroy(&vect[real_size-- - 1]);
-					allo.deallocate(vect, buffer_size + 1);
 				}
-				if ((vect = allo.allocate(n)))
+				if (buffer_size && buffer_size < n)
 				{
+					allo.deallocate(vect, buffer_size);
+					need_alloc = true;
+				}
+				// while (buffer_size < n)
+				// 	buffer_size = buffer_size ? buffer_size << 1 : 1;
+				if (need_alloc)
+				{
+					vect = allo.allocate(n);
 					buffer_size = n;
+				}
+				if (vect)
+				{
 					real_size = n;
 					for (size_type i = 0; i < n; i++)
-					{
-						allo.construct(&vect[i], *(first));
-						++first;
-					}
+						allo.construct(&vect[i], *(first++));
 				}
 			}
-
 	};
 
 	// Non-member function overloads
