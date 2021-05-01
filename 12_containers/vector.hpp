@@ -576,13 +576,18 @@ namespace ft
 			}
 			void	insert_int(iterator position, size_type n, const value_type& val)
 			{
+				if (n > this->max_size())
+				{
+					std::string err = "n > this->max_size()";
+					throw std::length_error(err);
+				}
 				if (position >= this->begin() && position <= this->end())
 				{
 					size_type 	i = 0;
 					if (real_size + n >= buffer_size) // realloc
 					{
 						value_type* temp = vect;
-						value_type	old_buffer_size = buffer_size;
+						size_type	old_buffer_size = buffer_size;
 						iterator old_b = &temp[0];
 						iterator old_e = &temp[real_size];
 						buffer_size = real_size + n;
@@ -638,7 +643,7 @@ namespace ft
 					if (real_size + n >= buffer_size) // realloc
 					{
 						value_type* temp = vect;
-						value_type	old_buffer_size = buffer_size;
+						size_type	old_buffer_size = buffer_size;
 						iterator old_b = &temp[0];
 						iterator old_e = &temp[real_size];
 						buffer_size = real_size + n;
