@@ -41,7 +41,7 @@ namespace ft
 				_size = 0;
 				list_end.prev = NULL;
 				list_end.next = NULL;
-			};
+			};//default
 			explicit list (size_type n, const value_type& val = value_type(),
 				const allocator_type& alloc = allocator_type())
 			{
@@ -50,8 +50,7 @@ namespace ft
 				init_int(n, val);
 				list_end.prev = getLastElem();
 				list_end.next = NULL;
-				
-			};
+			};//fill
 			template <class InputIterator>
          		list (InputIterator first, InputIterator last,
 				const allocator_type& alloc = allocator_type())
@@ -63,11 +62,20 @@ namespace ft
 			};
 			list (const list& x)
 			{
-
+				this->operator=(x);
 			};
 			list& operator= (const list& x)
 			{
-
+				if (this->getFirstElem())
+					this->clear();
+				s_list<value_type> *x_str = x.getFirstElem();
+				while (x_str)
+				{
+					this->push_back(x_str->val);
+					x_str = x_str->next;
+				}
+				this->list_end.prev = this->getLastElem();
+				return *this;
 			};
 			~list()
 			{
@@ -92,7 +100,12 @@ namespace ft
 					typedef typename Alloc::const_reference		const_reference;
 					
 					iterator() { m_ptr = NULL; list_start = NULL; list_end = NULL; };
-					//iterator(pointer value) : m_ptr(value) {};
+					iterator(pointer value)
+					{
+						m_ptr = value;
+						list_start = NULL;
+						list_end = NULL;
+					};
 					iterator(s_list<value_type> *val, s_list<value_type> *struct_end)
 					{
 						if (val == struct_end)
@@ -128,7 +141,7 @@ namespace ft
 						list_start = list_start->next ? list_start->next : list_end;
 						return *this;
 					};
-					//iterator operator++(int) {iterator some = *this; ++(*this); return some; };
+					iterator operator++(int) {iterator some = *this; ++(*this); return some; };
 					//bidirectional iterator requirements
 					iterator& operator--()
 					{
@@ -137,7 +150,7 @@ namespace ft
 						list_start = (list_start == list_end ? list_end->prev : list_start->prev);
 						return *this;
 					};
-					//iterator operator--(int) { iterator some = *this; --(*this); return some; };
+					iterator operator--(int) { iterator some = *this; --(*this); return some; };
 					reference operator*() const { return *m_ptr; };
 				private:
 					pointer m_ptr;
@@ -154,22 +167,43 @@ namespace ft
 					typedef typename Alloc::reference		reference;
 					typedef typename Alloc::const_reference	const_reference;
 
-					const_iterator() { m_ptr = NULL; };
+					const_iterator() { m_ptr = NULL; list_start = NULL; list_end = NULL; };
 					const_iterator(pointer value) : m_ptr(value) {};
+					const_iterator(pointer ptr, s_list<value_type> const *val, s_list<value_type> const *struct_end) : m_ptr(ptr), list_start(val), list_end(struct_end)
+					{
+						
+					};
 					~const_iterator() {};
 					// input iterator requirements
 					const_iterator(const_iterator const & obj) { *this = obj; }; // copy constructor
 					const_iterator(iterator const & obj) { *this = obj; };
-					const_iterator& operator= (const_iterator const & obj) { this->m_ptr = obj.m_ptr; this->list_start = obj.list_start; return *this; }; //assignatiom overloading
+					const_iterator& operator= (const_iterator const & obj) { this->m_ptr = obj.m_ptr; this->list_start = obj.list_start; this->list_end = obj.list_end; return *this; }; //assignatiom overloading
 					bool operator== (const_iterator const & obj) const { return (m_ptr == obj.m_ptr); };
 					bool operator!= (const_iterator const & obj) const { return (m_ptr != obj.m_ptr); };
 					pointer operator-> () const { return m_ptr; };
 					//forward iterator requirements
-					const_iterator& operator++() { m_ptr = &list_start->next ? &list_start->next->val : NULL; list_start = list_start->next ? list_start->next : NULL; return *this; };
-					//const_iterator operator++(int) {const_iterator some = *this; ++(*this); return some; };
+					const_iterator& operator++()
+					{
+						if (!list_start)
+						{
+							m_ptr = NULL;
+							list_start = list_end;
+							return *this;
+						}
+						m_ptr = list_start->next ? &list_start->next->val : NULL;
+						list_start = list_start->next ? list_start->next : list_end;
+						return *this;
+					};
+					const_iterator operator++(int) {const_iterator some = *this; ++(*this); return some; };
 					//bidirectional iterator requirements
-					const_iterator& operator--() { m_ptr = &list_start->prev->val; list_start = list_start->prev; return *this; };
-					//const_iterator operator--(int) { const_iterator some = *this; --(*this); return some; };
+					const_iterator& operator--()
+					{
+						m_ptr = (list_start == list_end ? &list_end->prev->val : &list_start->prev->val);
+						
+						list_start = (list_start == list_end ? list_end->prev : list_start->prev);
+						return *this;
+					};
+					const_iterator operator--(int) { const_iterator some = *this; --(*this); return some; };
 					reference operator*() const { return *m_ptr; };
 					// reference operator[] (size_type n) const { return *(m_ptr + n); };
 				private:
@@ -259,9 +293,9 @@ namespace ft
 					pointer m_ptr;
 			};
 			iterator begin() { return iterator(list_start, &list_end); };
-			const_iterator begin() const { return const_iterator(list_start); };
+			const_iterator begin() const { return const_iterator((list_start == &list_end ? NULL : &list_start->val), list_start, &list_end); };
 			iterator end() { return iterator(&list_end, &list_end); };
-			const_iterator end() const { return const_iterator(NULL); };
+			const_iterator end() const { return const_iterator(NULL, &list_end, &list_end); };
 			// reverse_iterator rbegin() { return (_size > 0 ? reverse_iterator(&list_begin[_size]) : NULL); };
 			// const_reverse_iterator rbegin() const { return (_size > 0 ? const_reverse_iterator(&list_begin[_size]) : NULL); };
 			// reverse_iterator rend() { return (_size > 0 ? reverse_iterator(&list_begin[0]) : NULL); };
@@ -279,19 +313,8 @@ namespace ft
 			///////////////////////////////////////////////////////////////////////
 			reference		front() { return *(begin()); };
 			const_reference	front() const { return *(begin()); };
-			reference		back()
-			{
-	
-				return *(--end());
-			};
-			const_reference	back() const
-			{
-				s_list<value_type> *temp = list_start;
-				while (temp->next)
-					temp = temp->next;
-				return temp->val;
-			};
-
+			reference		back() { return *(--end()); };
+			const_reference	back() const { return *(--end()); };
 			///////////////////////////////////////////////////////////////////////
 			///				MODIFIERS										///////
 			///////////////////////////////////////////////////////////////////////
@@ -312,7 +335,6 @@ namespace ft
 				{
 					list_start = new s_list<value_type>;
 					allo.construct(&list_start->val, val);
-					//list_start->val = val;
 					list_start->prev = NULL;
 					list_start->next = NULL;
 					list_end.prev = list_start;
@@ -403,11 +425,16 @@ namespace ft
 				if (position == this->end())
 					return position;
 				s_list<value_type> *needed = getElem(position);
-				//iterator to_return;
 				if (needed == list_start)
+				{
 					this->pop_front();
+					return this->begin();
+				}
 				else if (list_end.prev && needed == list_end.prev)
+				{
 					this->pop_back();
+					return this->end();
+				}
 				else if (needed)
 				{
 					needed->prev->next = needed->next;
@@ -421,7 +448,6 @@ namespace ft
 			};
 			iterator	erase (iterator first, iterator last)
 			{
-				std::cout << _size << " - size before erase" << std::endl;
 				iterator to_return = last;
 				if (first == this->begin())
 				{
@@ -464,9 +490,15 @@ namespace ft
 			};
 			void		swap (list& x)
 			{
-				s_list<value_type> *temp = list_start;
+				s_list<value_type> *temp_start = list_start;
+				s_list<value_type> *temp_end_prev = list_end.prev;
+				size_type temp_size = _size;
 				list_start = x.getFirstElem();
-				x.setFirstElem(temp);
+				x.setFirstElem(temp_start);
+				list_end.prev = x.getLastElem();
+				x.setEndPrev(temp_end_prev);
+				_size = x.size();
+				x.setSize(temp_size);
 			};
 			void		resize(size_type n, value_type val = value_type())
 			{
@@ -514,7 +546,6 @@ namespace ft
 					}
 					if (i_b == position)
 					{
-						//std::cout << "value: " << temp->prev->val << std::endl;
 						s_list<value_type> *x_last = x.getFirstElem();
 							while (x_last->next)
 								x_last = x_last->next;
@@ -559,16 +590,47 @@ namespace ft
 			};//element range
 			void remove (const value_type& val)
 			{
-
+				iterator i_b = this->begin();
+				iterator i_e = this->end();
+				const value_type vzz = val;
+				while (i_b != i_e)
+				{
+					if (*i_b == vzz)
+						i_b = erase(i_b);
+					else
+						++i_b;
+				}
 			};
 			template <class Predicate>
   				void remove_if (Predicate pred)
 			{
-
+				iterator i_b = this->begin();
+				iterator i_e = this->end();
+				while (i_b != i_e)
+				{
+					if (pred(*i_b))
+					{
+						erase(i_b);
+						remove_if(pred);
+						break;
+					}
+					else
+						++i_b;
+				}
 			};
 			void unique()
 			{
-
+				if (_size > 0)
+				{
+					list<value_type> new_list;
+					while (_size > 0)
+					{
+						new_list.push_back(*this->begin());
+						const value_type& val = *this->begin();
+						this->remove(val);
+					}
+					this->splice(this->begin(), new_list);
+				}
 			};
 			template <class BinaryPredicate>
 				void unique (BinaryPredicate binary_pred)
@@ -577,28 +639,69 @@ namespace ft
 			};
 			void merge (list& x)
 			{
-
+				if (x != *this)
+				{
+					this->splice(this->end(), x);
+					this->sort();
+				}
 			};
 			template <class Compare>
 				void merge (list& x, Compare comp)
 			{
-
+				if (x != *this)
+				{
+					this->splice(this->end(), x);
+					this->sort(comp);
+				}
 			};
 			void sort()
 			{
-
+				s_list<value_type> *temp = this->getFirstElem();
+				while (temp && temp->next)
+				{
+					if (temp->val > temp->next->val)
+					{
+						value_type temp_val = temp->val;
+						temp->val = temp->next->val;
+						temp->next->val = temp_val;
+						this->sort();
+						break;
+					}
+					else
+						temp = temp->next;
+				}
 			};
 			template <class Compare>
 				void sort (Compare comp)
 			{
-
+				s_list<value_type> *temp = this->getFirstElem();
+				while (temp && temp->next)
+				{
+					if (!comp(temp->next->val, temp->val))
+						temp = temp->next;
+					else
+					{
+						value_type temp_val = temp->val;
+						temp->val = temp->next->val;
+						temp->next->val = temp_val;
+						this->sort(comp);
+						break;
+					}
+				}
 			};
 			void reverse()
 			{
+				iterator i_b = this->begin();
+				iterator i_e = this->end();
+				while (i_b != --i_e)
+				{
+					value_type temp = *i_b;
+					*i_b = *i_e;
+					*i_e = temp;
 
+					++i_b;
+				}
 			};
-
-
 
 		private:
 			
@@ -607,16 +710,17 @@ namespace ft
 			s_list<value_type>		list_end;
 			std::allocator<value_type> allo;
 			
-			s_list<value_type> *getFirstElem() { return list_start; };
-			s_list<value_type> *getLastElem()
+			s_list<value_type> *getFirstElem() const { return list_start; };
+			s_list<value_type> *getLastElem() const
 			{
 				s_list<value_type> *temp = list_start;
 				while (temp->next)
 					temp = temp->next;
 				return temp;
 			};
-			size_type			getSize() { return _size; };
 			void				setFirstElem(s_list<value_type> *elem) { list_start = elem; };
+			void				setSize(size_type size) { _size = size; };
+			void				setEndPrev(s_list<value_type> *elem) { list_end.prev = elem; };
 			s_list<value_type>	*getElem(iterator position)
 			{
 				iterator i_b = this->begin();
@@ -654,7 +758,8 @@ namespace ft
 				list_end.next = NULL;
 			}
 			void	init_iter(iterator first, iterator last)
-			{
+			{	
+				std::cout << "I'm here!" << std::endl;
 				while (first != last)
 				{
 					this->push_back(*first);
@@ -737,10 +842,7 @@ namespace ft
 	template <typename T, class Alloc>
 		void swap (list<T,Alloc>& x, list<T,Alloc>& y)
 	{
-		typename ft::list<T, Alloc> temp;
-		temp = x;
-		x = y;
-		y = temp;
+		x.swap(y);
 	};
 	
 	template <class T, class Alloc>
