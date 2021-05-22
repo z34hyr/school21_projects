@@ -37,6 +37,30 @@ namespace ft
 			typedef typename bst_struct::iterator			iterator;
 			typedef typename bst_struct::const_iterator	const_iterator;
 
+			template<typename arg1, typename arg2, typename result>
+			struct binary_res_function
+			{
+					typedef arg1 arg1_argument_type;
+					typedef arg2 arg2_argument_type;
+					typedef result result_type;
+			};
+			class value_compare :
+				public binary_res_function<value_type, value_type, bool>
+			{
+				private:
+					key_compare compare;
+
+				protected:
+					value_compare(key_compare comparator) : compare(comparator) {}
+
+				public:
+					bool operator()(const value_type &x, const value_type &y) const
+					{
+						return (compare(x.first, y.first));
+					}
+			};
+			
+
 		private:
 			size_type	_size;
 			bst_struct	holder;
@@ -58,12 +82,11 @@ namespace ft
 			};
 			map& operator= (const map& x)
 			{
-
+				~holder;
+				holder();
+				
 			};
-			~map()
-			{
-
-			};
+			~map() {};
 			iterator begin() { return holder.begin(); };
 			const_iterator begin() const { return holder.begin(); };
 			iterator end() { return holder.end(); };
@@ -138,12 +161,12 @@ namespace ft
 			///////////////////////////////////////////////////////////////////////
 			key_compare key_comp() const
 			{
-
+				return holder.key_comp();
 			};
-			// value_compare value_comp() const
-			// {
-
-			// };
+			value_compare value_comp() const
+			{
+				return value_compare();
+			};
 
 			///////////////////////////////////////////////////////////////////////
 			///				OPERATIONS										///////
@@ -164,29 +187,33 @@ namespace ft
 					return 1;
 				return 0;
 			};
+			const_iterator lower_bound (const key_type& k) const
+			{
+				return holder.lower_bound_const(k);
+			};
 			iterator lower_bound (const key_type& k)
 			{
-
+				return holder.lower_bound(k);
 			};
-			// const_iterator lower_bound (const key_type& k) const
-			// {
-
-			// };
+			
 			iterator upper_bound (const key_type& k)
 			{
-
+				return holder.upper_bound(k);
 			};
-			// const_iterator upper_bound (const key_type& k) const
-			// {
-
-			// };
-			// std::pair<const_iterator,const_iterator> equal_range (const key_type& k) const
-			// {
-
-			// };
-			std::pair<iterator,iterator>             equal_range (const key_type& k)
+			const_iterator upper_bound (const key_type& k) const
 			{
-
+				
+			};
+			std::pair<const_iterator, const_iterator> equal_range (const key_type& k) const
+			{
+				const_iterator lb = lower_bound(k);
+				return std::pair<const_iterator, const_iterator>(lb, lb);
+			};
+			std::pair<iterator, iterator>             equal_range (const key_type& k)
+			{
+				iterator lb = lower_bound(k);
+				std::pair<iterator, iterator> rez(lb, lb);
+				return rez;
 			};
 
 		private:
@@ -235,5 +262,4 @@ namespace ft
 
 			}
 	};
-
 }

@@ -126,7 +126,6 @@ template <typename Value>
 	public:
 		bst_const_iterator() { m_node = NULL; };
 		bst_const_iterator(node_const_ptr ptr) : m_node(ptr) {};
-		~bst_const_iterator() {};
 
 		node_const_ptr get_node() { return this->m_node; };
 
@@ -171,6 +170,7 @@ template <typename Value>
 			this->operator--();
 			return temp;
 		}
+
 };
 
 template <class Key, class T, class Compare = std::less<Key> >
@@ -184,10 +184,10 @@ template <class Key, class T, class Compare = std::less<Key> >
 		typedef value_type&							reference;
 		typedef value_type*							pointer;
 		typedef bst_node<value_type>				node;
-		//typedef bst_const_node<value_type>			const_node;
 		typedef bst_iterator<value_type>			iterator;
 		typedef bst_const_iterator<value_type>		const_iterator;
 		typedef size_t								size_type;
+
 
 	private:
 		node*	root_ptr;
@@ -220,6 +220,15 @@ template <class Key, class T, class Compare = std::less<Key> >
 		{
 			return const_iterator(&end_ptr);
 		}
+		const key_compare&	key_comp() const
+		{
+			return compare;
+		}
+		key_compare&	key_comp()
+		{
+			return compare;
+		}
+
 		iterator	find(key_type find_key)
 		{
 			iterator	i_b = this->begin();
@@ -227,6 +236,42 @@ template <class Key, class T, class Compare = std::less<Key> >
 			while (i_b != i_e)
 			{
 				if ((*i_b).first == find_key)
+					return i_b;
+				++i_b;
+			}
+			return i_e;
+		}
+		iterator	lower_bound(key_type find_key)
+		{
+			iterator	i_b = this->begin();
+			iterator	i_e = this->end();
+			while (i_b != i_e)
+			{
+				if (!compare_keys((*i_b).first, find_key))
+					return i_b;
+				++i_b;
+			}
+			return i_e;
+		}
+		const_iterator	lower_bound_const(key_type find_key) const
+		{
+			const_iterator	i_b = this->begin();
+			const_iterator	i_e = this->end();
+			while (i_b != i_e)
+			{
+				if (compare_keys(find_key, (*i_b).first) || (*i_b).first == find_key)
+					return i_b;
+				++i_b;
+			}
+			return i_e;
+		}
+		iterator	upper_bound(key_type find_key)
+		{
+			iterator	i_b = this->begin();
+			iterator	i_e = this->end();
+			while (i_b != i_e)
+			{
+				if (compare_keys(find_key, (*i_b).first))
 					return i_b;
 				++i_b;
 			}
@@ -255,7 +300,7 @@ template <class Key, class T, class Compare = std::less<Key> >
 			}
 			return this->find(k)->second;
 		};
-		bool	compare_keys(const key_type &a, const key_type &b)
+		bool	compare_keys(const key_type &a, const key_type &b) const
 		{
 			return (compare(a, b));
 		}
