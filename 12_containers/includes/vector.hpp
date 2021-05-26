@@ -26,24 +26,31 @@ namespace ft
 			typedef typename Alloc::difference_type	difference_type;
 			typedef typename Alloc::size_type		size_type;
 
-			explicit vector (const allocator_type& alloc = allocator_type()){ buffer_size = 0; real_size = 0; vect = NULL; };
+		private:
+			size_type	buffer_size;
+			size_type	real_size;
+			value_type* vect;
+			std::allocator<value_type> allo;
+
+		public:
+			explicit vector (const allocator_type& alloc = allocator_type()) : vect(NULL), allo(alloc) { buffer_size = 0; real_size = 0; };
 			explicit vector (size_type n, const value_type& val = value_type(),
-				const allocator_type& alloc = allocator_type())
+				const allocator_type& alloc = allocator_type()) : vect(NULL), allo(alloc)
 			{
 				init_int(n, val);
 			};
 			template <class InputIterator>
          		vector (InputIterator first, InputIterator last,
-				const allocator_type& alloc = allocator_type())
+				const allocator_type& alloc = allocator_type()) : vect(NULL), allo(alloc)
 			{
 				typedef typename is_integer<InputIterator>::__type _Integral;
 	 			my_initialize_dispatch(first, last, _Integral());
 			};
-			vector (const vector& x)
+			vector (const vector& x) : vect(NULL)
 			{
 				buffer_size = 0;
 				real_size = 0;
-				vect = NULL;
+				//vect = NULL;
 				*this = x;
 			};
 			vector& operator= (const vector& x)
@@ -499,7 +506,6 @@ namespace ft
 			void		swap (vector& x)
 			{
 				vector temp(*this);
-				//temp = *this;
 				*this = x;
 				x = temp;
 			};
@@ -512,10 +518,6 @@ namespace ft
 				real_size = 0;
 			};
 		private:
-			size_type	buffer_size;
-			size_type	real_size;
-			value_type* vect;
-			std::allocator<value_type> allo;
 
 			template<typename InputIterator>
 			void

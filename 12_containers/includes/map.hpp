@@ -32,11 +32,12 @@ namespace ft
 			typedef value_type&								reference;
 			typedef value_type const &						const_reference;
 			typedef value_type*								pointer;
-			typedef value_type const *						const_pointer;
 			typedef ptrdiff_t								difference_type;
 			typedef size_t									size_type;
 			typedef typename bst_struct::iterator			iterator;
 			typedef typename bst_struct::const_iterator	const_iterator;
+			typedef typename bst_struct::reverse_iterator	reverse_iterator;
+			typedef typename bst_struct::const_reverse_iterator	const_reverse_iterator;
 
 			// special for value_type comparator
 			template<typename arg1, typename arg2, typename result>
@@ -68,17 +69,20 @@ namespace ft
 			bst_struct	holder;
 
 		public:
-			explicit map (const key_compare& comp = key_compare())
+			explicit map (const key_compare& comp = key_compare()) : holder(comp)
 			{
+				_size = 0;
 			};//empty
 			template <class InputIterator>
 				map (InputIterator first, InputIterator last,
-				const key_compare& comp = key_compare())
+				const key_compare& comp = key_compare()) : holder(comp)
 			{
+				_size = 0;
 				this->insert(first, last);
 			};//range
 			map (const map& x)
 			{
+				_size = 0;
 				this->operator=(x);
 			};//copy constructor
 			map& operator= (const map& x)
@@ -95,10 +99,10 @@ namespace ft
 			const_iterator begin() const { return holder.begin(); };
 			iterator end() { return holder.end(); };
 			const_iterator end() const { return holder.end(); };
-		//	reverse_iterator rbegin() { return (real_size > 0 ? reverse_iterator(&vect[real_size]) : NULL); };
-		//	const_reverse_iterator rbegin() const { return (real_size > 0 ? const_reverse_iterator(&vect[real_size]) : NULL); };
-		//	reverse_iterator rend() { return (real_size > 0 ? reverse_iterator(&vect[0]) : NULL); };
-		//	const_reverse_iterator rend() const { return (real_size > 0 ? const_reverse_iterator(&vect[0]) : NULL); };
+			reverse_iterator rbegin() { return holder.rbegin(); };
+			const_reverse_iterator rbegin() const { return holder.end(); };
+			reverse_iterator rend() { return holder.rend(); };
+			const_reverse_iterator rend() const { return holder.rend(); };
 
 			// CAPACITY
 			size_type	size() const { return holder.get_size(); };
@@ -203,7 +207,7 @@ namespace ft
 			};
 			const_iterator upper_bound (const key_type& k) const
 			{
-				
+				return holder.upper_bound(k);
 			};
 			std::pair<iterator, iterator>             equal_range (const key_type& k)
 			{

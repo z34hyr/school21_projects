@@ -1,8 +1,5 @@
 
-#include <iostream>
-#include <string>
-
-#include "is_integer.hpp"
+#pragma once
 
 template <typename ValType>
 	struct bst_node
@@ -49,6 +46,8 @@ template <typename ValType>
 	}
 
 };
+template <typename Value>
+	struct bst_const_iterator;
 
 template <typename Value>
 	struct bst_iterator
@@ -59,18 +58,20 @@ template <typename Value>
 		typedef Value*	pointer;
 		typedef std::bidirectional_iterator_tag iterator_category;
 		typedef ptrdiff_t difference_type;
+		typedef bst_const_iterator<Value>	bst_const_iterator;
 	private:
 		node_ptr	m_node;
 
 	public:
 		bst_iterator() { m_node = NULL; };
 		bst_iterator(node_ptr ptr) : m_node(ptr) {};
+		operator bst_const_iterator() { return bst_const_iterator(m_node); };
 		~bst_iterator() {};
 
 		node_ptr get_node() { return this->m_node; };
 
-		reference operator*() { return m_node->value; };
-		pointer operator->() { return &m_node->value; };
+		reference operator*() const { return m_node->value; };
+		pointer operator->() const { return &m_node->value; };
 		bst_iterator& operator= (bst_iterator const & obj) { this->m_node = obj.m_node; return *this; }; //assignatiom overloading
 		bool operator==(bst_iterator & iter) { return this->m_node == iter.m_node; };
 		bool operator!=(bst_iterator & iter) { return !this->operator==(iter); };
@@ -121,14 +122,16 @@ template <typename Value>
 		typedef const Value*	pointer;
 		typedef std::bidirectional_iterator_tag iterator_category;
 		typedef ptrdiff_t difference_type;
+		typedef bst_iterator<Value>	bst_iterator;
 	private:
 		node_const_ptr	m_node;
 
 	public:
 		bst_const_iterator() { m_node = NULL; };
 		bst_const_iterator(node_const_ptr ptr) : m_node(ptr) {};
+		bst_const_iterator(bst_iterator& val) : m_node(val.get_node()) {};
 
-		node_const_ptr get_node() { return this->m_node; };
+		node_const_ptr get_node() const { return this->m_node; };
 
 		reference operator*() const { return m_node->value; };
 		pointer operator->() const { return &m_node->value; };
@@ -175,6 +178,9 @@ template <typename Value>
 };
 
 template <typename Value>
+	struct bst_const_reverse_iterator;
+
+template <typename Value>
 	struct bst_reverse_iterator
 {
 	public:
@@ -183,19 +189,26 @@ template <typename Value>
 		typedef Value*	pointer;
 		typedef std::bidirectional_iterator_tag iterator_category;
 		typedef ptrdiff_t difference_type;
+		typedef bst_const_reverse_iterator<Value>	bst_const_reverse_iterator;
+		
 	private:
 		node_ptr	m_node;
 
 	public:
 		bst_reverse_iterator() { m_node = NULL; };
 		bst_reverse_iterator(node_ptr ptr) : m_node(ptr) {};
-	//	bst_reverse_iterator(bst_iterator reg_iter) : m_node(reg_iter.m_node) {};
+		operator bst_const_reverse_iterator() { return bst_const_reverse_iterator(m_node); };
 		~bst_reverse_iterator() {};
 
 		node_ptr get_node() { return this->m_node; };
 
-		reference operator*() { return m_node->value; };
-		pointer operator->() { return &m_node->value; };
+		reference operator*()
+		{
+			bst_reverse_iterator temp = *this;
+			++temp;
+			return temp.m_node->value; 
+		};
+		pointer operator->() { return &(operator*()); };
 		bst_reverse_iterator& operator= (bst_reverse_iterator const & obj) { this->m_node = obj.m_node; return *this; }; //assignatiom overloading
 		bool operator==(bst_reverse_iterator & iter) { return this->m_node == iter.m_node; };
 		bool operator!=(bst_reverse_iterator & iter) { return !this->operator==(iter); };
@@ -237,7 +250,74 @@ template <typename Value>
 		}
 };
 
-template <class Key, class T, class Compare = std::less<Key> >
+template <typename Value>
+	struct bst_const_reverse_iterator
+{
+	public:
+		typedef bst_node<Value>* node_ptr;
+		typedef Value&	reference;
+		typedef Value*	pointer;
+		typedef std::bidirectional_iterator_tag iterator_category;
+		typedef ptrdiff_t difference_type;
+	private:
+		node_ptr	m_node;
+
+	public:
+		bst_const_reverse_iterator() { m_node = NULL; };
+		bst_const_reverse_iterator(node_ptr ptr) : m_node(ptr) {};
+		~bst_const_reverse_iterator() {};
+
+		node_ptr get_node() const { return this->m_node; };
+
+		reference operator*() const
+		{
+			bst_const_reverse_iterator temp = *this;
+			++temp;
+			return temp.m_node->value; 
+		};
+		pointer operator->() const { return &(operator*()); };
+		bst_const_reverse_iterator& operator= (bst_const_reverse_iterator const & obj) { this->m_node = obj.m_node; return *this; }; //assignatiom overloading
+		bool operator==(bst_const_reverse_iterator & iter) { return this->m_node == iter.m_node; };
+		bool operator!=(bst_const_reverse_iterator & iter) { return !this->operator==(iter); };
+		bst_const_reverse_iterator&	operator++()
+		{
+			if (m_node->right)
+				m_node = m_node->max(m_node->right);
+			else
+			{
+				while (m_node->parent && m_node == m_node->parent->right)
+					m_node = m_node->parent;
+				m_node = m_node->parent;
+			}
+			return *this;
+		}
+		bst_const_reverse_iterator	operator++(int)
+		{
+			bst_const_reverse_iterator temp = *this;
+			*this = this->operator++();
+			return temp;
+		}
+		bst_const_reverse_iterator&	operator--()
+		{
+			if (m_node->left)
+				this->m_node = m_node->min(m_node->left);
+			else
+			{
+				while (m_node->parent && m_node == m_node->parent->left)
+					m_node = m_node->parent;
+				m_node = m_node->parent;
+			}
+			return *this;
+		}
+		bst_const_reverse_iterator	operator--(int)
+		{
+			bst_const_reverse_iterator temp = *this;
+			*this = this->operator--();
+			return temp;
+		}
+};
+
+template <class Key, class T, class Compare >
 	class bst
 {
 	public:
@@ -250,8 +330,9 @@ template <class Key, class T, class Compare = std::less<Key> >
 		typedef bst_node<value_type>				node;
 		typedef bst_iterator<value_type>			iterator;
 		typedef bst_const_iterator<value_type>		const_iterator;
+		typedef bst_reverse_iterator<value_type>	reverse_iterator;
+		typedef bst_const_reverse_iterator<value_type>	const_reverse_iterator;
 		typedef size_t								size_type;
-
 
 	private:
 		node*	root_ptr;
@@ -266,8 +347,6 @@ template <class Key, class T, class Compare = std::less<Key> >
 			root_ptr = NULL;
 			_size = 0;
 		};
-		//bst operator= (bst& const obj) {  };
-
 		iterator	begin()
 		{
 			return iterator(root_ptr ? root_ptr->min(root_ptr) : &end_ptr);
@@ -283,6 +362,22 @@ template <class Key, class T, class Compare = std::less<Key> >
 		const_iterator	end() const
 		{
 			return const_iterator(&end_ptr);
+		}
+		reverse_iterator	rbegin()
+		{
+			return reverse_iterator(&end_ptr);
+		}
+		reverse_iterator	rend()
+		{
+			return reverse_iterator(root_ptr ? (root_ptr->min(root_ptr)) : &end_ptr);
+		}
+		const_reverse_iterator	rbegin() const
+		{
+			return reverse_iterator(&end_ptr);
+		}
+		const_reverse_iterator	rend() const
+		{
+			return const_reverse_iterator(root_ptr ? (root_ptr->min(root_ptr)) : &end_ptr);
 		}
 		const key_compare&	key_comp() const
 		{
@@ -312,18 +407,6 @@ template <class Key, class T, class Compare = std::less<Key> >
 			while (i_b != i_e)
 			{
 				if (!compare_keys((*i_b).first, find_key))
-					return i_b;
-				++i_b;
-			}
-			return i_e;
-		}
-		const_iterator	lower_bound_const(key_type find_key) const
-		{
-			const_iterator	i_b = this->begin();
-			const_iterator	i_e = this->end();
-			while (i_b != i_e)
-			{
-				if (compare_keys(find_key, (*i_b).first) || (*i_b).first == find_key)
 					return i_b;
 				++i_b;
 			}
