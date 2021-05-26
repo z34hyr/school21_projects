@@ -9,9 +9,6 @@
 #include <algorithm>
 #include <iterator>
 #include <cstring>
-#include "vector.hpp"
-#include "list.hpp"
-#include "map.hpp"
 
 # define CYAN  "\x1B[36m" // Cyan
 # define GREEN   "\033[32m" // Green
@@ -57,12 +54,12 @@ void fill_info(std::string type)
 void print_test_name(std::string test_name, std::string command)
 {
 	std::cout << YELLOW;
-	for (int i = 0; i < test_name.length(); i++)
+	for (int i = 0; i < (int)test_name.length(); i++)
 		std::cout << "=";
 	std::cout << std::endl;
 	std::cout << "#" << ++counter << " " << test_name << std::endl;
 	std::cout << "command: " << WHITE << command << YELLOW << std::endl;
-	for (int i = 0; i < test_name.length(); i++)
+	for (int i = 0; i < (int)test_name.length(); i++)
 		std::cout << "=";
 	std::cout << RESET << std::endl;
 }
@@ -72,7 +69,7 @@ void print_iterable(T *container, container_info WHICH)
 {
 	typename T::iterator i_b = container->begin();
 	typename T::iterator i_e = container->end();
-	int counter = 0;
+	//int counter = 0;
 	std::cout << "================================" << std::endl;
 	std::cout << "Container type: " << WHICH.color << WHICH.owner << " " << WHICH.type << RESET << std::endl;
 	std::cout << WHICH.color << "print forward: " << RESET << std::endl;
@@ -88,10 +85,10 @@ void print_iterable(T *container, container_info WHICH)
 }
 
 template <typename T>
-void print_iterable_reverse(T container, container_info WHICH)
+void print_iterable_reverse(T *container, container_info WHICH)
 {
-	typename T::reverse_iterator i_b = container.rbegin();
-	typename T::reverse_iterator i_e = container.rend();
+	typename T::reverse_iterator i_b = container->rbegin();
+	typename T::reverse_iterator i_e = container->rend();
 	int counter = 0;
 	//std::cout << "================================" << std::endl;
 	//std::cout << "Container type: " << WHICH.color << WHICH.owner << " " << WHICH.type << RESET << std::endl;
@@ -111,7 +108,7 @@ void print_map(T *container, container_info WHICH)
 {
 	typename T::iterator i_b = container->begin();
 	typename T::iterator i_e = container->end();
-	int counter = 0;
+	// int counter = 0;
 	std::cout << "================================" << std::endl;
 	std::cout << "Container type: " << WHICH.color << WHICH.owner << " " << WHICH.type << RESET << std::endl;
 	std::cout << WHICH.color << "print forward: " << RESET << std::endl;
@@ -124,6 +121,25 @@ void print_map(T *container, container_info WHICH)
 	}
 	//std::cout << std::endl;
 	//std::cout << WHICH.color << "(total " << counter << ")" << RESET << std::endl;
+}
+
+template <typename T>
+void print_map_reverse(T *container, container_info WHICH)
+{
+	typename T::reverse_iterator i_b = container->rbegin();
+	typename T::reverse_iterator i_e = container->rend();
+	// int counter = 0;
+	//std::cout << "================================" << std::endl;
+	//std::cout << "Container type: " << WHICH.color << WHICH.owner << " " << WHICH.type << RESET << std::endl;
+	//std::cout << WHICH.color << "size " << container.size() << RESET << "; " << container.max_size() << " - max_size; " << container.capacity() << " - capacity." << std::endl;
+	std::cout << WHICH.color << "print backward: " << RESET << std::endl;
+	while (i_b != i_e)
+	{
+		std::cout << "	" << i_b->first << " => " << i_b->second << ";\n";
+		++i_b;
+		// counter += 1;
+	}
+	// std::cout << WHICH.color << "(total " << counter << ")" << RESET << std::endl;
 }
 
 template <typename S, typename M>

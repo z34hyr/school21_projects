@@ -1,5 +1,6 @@
 
 #include "utility.hpp"
+#include "map.hpp"
 #include <iterator>
 
 int main()
@@ -134,7 +135,12 @@ int main()
 	print_test_name("find by key test", "map_iter.find(55)");
 	std::cout << "stl result (iterator->first) " << stl_map_iter.find(55)->first << "\n";
 	std::cout << "my result (iterator->first) " << my_map_iter.find(55)->first << "\n";
-
+	// find const
+	print_test_name("find by key test const", "map_iter.find(55)");
+	std::map<int, int>::const_iterator stl_ci = stl_map_iter.find(55);
+	ft::map<int, int>::const_iterator my_ci = my_map_iter.find(55);
+	std::cout << "stl result (const_iterator->first) " << stl_ci->first << "\n";
+	std::cout << "my result (const_iterator->first) " << my_ci->first << "\n";
 	//count +
 	print_test_name("count existing key test", "map_iter.count(55)");
 	std::cout << "stl result " << stl_map_iter.count(55) << "\n";
@@ -153,6 +159,14 @@ int main()
 	print_test_name("upper bound test", "map_iter.lower bound(10)");
 	std::cout << "stl upper bound result " << stl_map_iter.upper_bound(10)->first << "\n";
 	std::cout << "my upper bound result " << my_map_iter.upper_bound(10)->first << "\n";
+	// upper bound const
+	print_test_name("upper bound const test", "const_iterator = my_map_iter.upper_bound(10)");
+	ft::map<int,int>::const_iterator cmiub = my_map_iter.upper_bound(10);
+	std::cout << "upper bound const value: " << cmiub->first << " => " << cmiub->second << std::endl;
+	// lower bound const
+	print_test_name("lower bound const test", "const_iterator = my_map_iter.lower_bound(10)");
+	ft::map<int,int>::const_iterator cmilb = my_map_iter.lower_bound(10);
+	std::cout << "lower bound const value: " << cmilb->first << " => " << cmiub->second << std::endl;
 	// upper bound
 	print_test_name("upper bound test", "map_iter.lower bound(10000)");
 	std::map<int,int>::iterator siub = stl_map_iter.upper_bound(10000);
@@ -168,17 +182,25 @@ int main()
 	std::cout << "stl equal_range result " << stl_map_iter.equal_range(10).first->first << "\n";
 	std::cout << "my equal_range result " << my_map_iter.equal_range(10).first->first << "\n";
 
+	//reverse iterator:
+	print_test_name("reverse iterator test", "create + iter");
+	print_map_reverse(&stl_map_iter, STL);
+	print_map_reverse(&my_map_iter, MINE);
 
+	// const begin test
+	print_test_name("const iterator test", "const_iterator = map.begin()");
+	ft::map<int,int>::const_iterator con_iter = my_map_iter.begin();
+	std::cout << "const_iterator: " << con_iter->first << " => " << con_iter->second << ";\n";
+	print_test_name("const reverse iterator test", "const_reverse_iterator = map.rbegin()");
 
-	ft::map<int,int>::const_iterator zaza1 = my_map_iter.upper_bound(-5);
-
+	ft::map<int,int>::const_reverse_iterator con_rev_iter = my_map_iter.rbegin();
+	std::cout << "const_reverse_iterator: " << con_rev_iter->first << " => " << con_rev_iter->second << ";\n";
+	
 	// clear test
 	print_test_name("clear test", "map_iter.clear()");
 	stl_map_iter.clear();
 	my_map_iter.clear();
 	print_both_maps(&stl_map_iter, &my_map_iter);
-
-
 	// map container with key_compare as std::greater<int>
 	{
 		print_test_name("map container with key_compare as std::greater<int>", "map<int, int, std::greater<int> >");
@@ -193,5 +215,4 @@ int main()
 		print_map(&my_greater, MINE);
 		std::cout << MINE.color << "size " << my_greater.size() << RESET << ";" << std::endl;
 	}
-
 }

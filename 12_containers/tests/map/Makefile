@@ -1,7 +1,10 @@
 
 INC = -I../../includes -I../
-
+FLAGS = -Wall -Wextra -Werror --std=c++98
+NAME = ft_map
 all:
-	#clang++ -Wall -Wextra -Werror --std=c++98 -o main test.cpp
-	clang++ --std=c++98 $(INC) -o main test_map.cpp
-	./main
+	clang++ $(FLAGS) $(INC) -o $(NAME) test_map.cpp
+	./$(NAME)
+
+valgr:
+	valgrind ./$(NAME)
