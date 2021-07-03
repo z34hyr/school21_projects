@@ -1,0 +1,71 @@
+####################################
+###	KNOWN KEYWORDS		####
+####################################
+# server keywords:
+	# port (default is 80)
+	# ip (no default, you must configure it for every server)
+	# server_name (no default)
+	# root (default is "html")
+		# it will take effect on all locations for this server config
+	# error_page ### /path/to/error.html
+		# it will take effect on all locations for this server config
+		# but you can specify another pages for every location, if needed
+	# index (default is index.html)
+		# it will take effect on all locations for this server config
+		# but you can specify another page for every location, if needed
+	# user_body_size (in bytes, default is 100.000, max is 'long' for your system)
+		# it will take effect on all locations for this server config
+		# but you can specify another value for every location, if needed
+
+# location keywords:
+	# root (default root will be taken from server config)
+		#if specified in server, but not specified in location - take from server
+		#if specified both server and location - location preferable
+	# autoindex (default is 0)
+	# user_body_size (default takes from server)
+		# max is 'long' for your system 
+	# allowed_methods (default is GET POST DELETE)
+		# if you specify this parameter, it will take only your values instead default
+	# save_file (default is 0)
+		# root will be taken as path to save file
+		# if 1, then we will save file
+	# cgi_pass (there is no default value)
+		# specify for /some/path/*.php request
+		# if not specified - there will be no pass to cgi handler
+	# error_page (default pages will be taken from server config)
+		# you can specify your own numbers and pages paths
+		# if pages with same number od error contains in server config - the will be overwritten with your path
+	# redirect ### /to/where/redirect (there is no default value)
+	# index - specify .html if request is root (default takes from server config)
+
+####################################
+###	DEFAULT VALUES		####
+####################################
+
+# root for location:
+	#if not specified at all - "html"
+	#if specified in server, but not specified in location - take from server
+	#if specified both server and location - location preferable
+# index is index.html
+# user_body_size = 100000 (in bytes)
+#port = 80 
+
+####################################
+###	CONFIG BEHAVIOUR	####
+####################################
+
+#1 you can setup multiple servers with same ip:port,
+#	but they must have different server_names
+#2 you must specify IP for every server
+#3 list of known error types:
+ { "400", "403", "404", "405", "411", "429" }
+#4 list of known redirection types:
+ { "301", "302", "307" }
+#5 list of known methods:
+ {"GET", "POST", "DELETE"}
+#6 to set CGI pass use this template:
+ location /some/folder/*.py {
+  cgi_pass /path/to/cgi/name_of_exe.py
+}
+Set folder + put *.py after it.
+#7 you can't duplicate parameters inside one location or server config
