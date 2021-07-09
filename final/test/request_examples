@@ -1,2 +1,0 @@
-curl -v --resolve test1:8081:127.0.0.1 http://test1:8081/test/old/
-curl -v --resolve test:8081:127.0.0.1 http://test:8081/test/old/
